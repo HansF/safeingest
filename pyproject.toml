@@ -1,0 +1,31 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "safeingest"
+version = "0.1.0"
+description = "PII-safe document ingestion for LLMs: markitdown conversion + local privacy-filter redaction."
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    "markitdown[pdf,docx,pptx,xlsx,xls,outlook]>=0.1.1",
+    "opf @ git+https://github.com/openai/privacy-filter",
+]
+
+[project.scripts]
+safeingest = "safeingest.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/safeingest"]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.uv]
+# opf pulls torch from PyPI (CUDA build on Linux); keep resolution deterministic.
