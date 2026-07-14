@@ -31,7 +31,13 @@ stable per unique value, so an LLM can still follow who did what.
 uv tool install "safeingest @ git+https://github.com/HansF/safeingest"
 # or from a local checkout:
 uv tool install --editable .
+# or one-shot without installing (Linux/macOS/Windows):
+uvx --python 3.12 --from git+https://github.com/HansF/safeingest safeingest <file>
 ```
+
+No `uv`? Get it with `curl -LsSf https://astral.sh/uv/install.sh | sh`
+(Linux/macOS) or `winget install astral-sh.uv` (Windows). Python 3.10–3.12 is
+required (torch constraint) — `--python 3.12` makes uv fetch it automatically.
 
 First run downloads the privacy-filter checkpoint (~1.5B params, MoE with 50M
 active) to `~/.opf/privacy_filter`; it runs on GPU when available, CPU otherwise.
