@@ -50,7 +50,14 @@ The detection model is good but not perfect (unusual names, novel secret
 formats, regional conventions can slip through). For high-sensitivity
 documents, review the sanitized output before sharing it.
 
-## Claude Code skill
+## Agent skill
 
-`~/.claude/skills/safeingest/SKILL.md` teaches Claude to route sensitive
-documents through this tool and to read only the sanitized output.
+The repo ships an [Agent Skill](https://agentskills.io/specification) at
+`skills/safeingest/SKILL.md` that teaches a coding agent to route sensitive
+documents through this tool and read only the sanitized output. Install it for
+your agent of choice with the GitHub CLI:
+
+```bash
+gh skill install HansF/safeingest --agent claude-code --scope user
+# other agents: --agent github-copilot | cursor | codex | gemini-cli | ...
+```
