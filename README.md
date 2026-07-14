@@ -19,8 +19,16 @@ safeingest scan.pdf --mask email,phone     # mask only these
 safeingest scan.pdf --allow name --report  # keep names, print JSON summary to stderr
 ```
 
-Categories: `name`, `email`, `phone`, `address`, `account`, `secret`
+Categories: `name`, `email`, `phone`, `address`, `account`, `secret`, `rrn`
 (masked by default) plus `url`, `date` (masked only with `--strict`/`--mask`).
+
+Detection is two layers deep: the neural model, plus a deterministic regex
+pass built on [pii-toolkit/pii-core](https://github.com/pii-toolkit/pii-core)
+(checksum-validated IBANs, Luhn credit cards, emails) extended with Belgian
+identifiers — rijksregisternummer/INSZ (official modulo-97 check, incl.
+bis-numbers and post-2000 births), phone numbers, and street addresses.
+Invisible PDF artifacts (non-breaking spaces, soft hyphens) are normalized
+before detection so they can't hide identifiers from either layer.
 
 PII is replaced by typed, numbered placeholders — `[NAME_1]`, `[EMAIL_2]` —
 stable per unique value, so an LLM can still follow who did what.

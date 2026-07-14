@@ -6,8 +6,10 @@ description: Ingest PII-sensitive documents safely by converting them to markdow
 # SafeIngest — PII-safe document ingestion
 
 `safeingest` converts a document to markdown (microsoft/markitdown) and masks
-PII with a local model (openai/privacy-filter) that runs entirely on this
-machine. The point is that the ORIGINAL content never enters your context.
+PII with a local model (openai/privacy-filter) plus a deterministic regex layer
+(pii-toolkit/pii-core: checksum-validated IBANs, credit cards, emails; Belgian
+rijksregisternummer/INSZ, phone numbers, street addresses). Everything runs on
+this machine. The point is that the ORIGINAL content never enters your context.
 
 ## Hard rules
 
@@ -73,8 +75,8 @@ spans were masked per category — relay this to the user.
 
 | Flag | Effect |
 |---|---|
-| (default) | masks name, email, phone, address, account, secret |
-| `--strict` | also masks urls and dates (all 8 categories) |
+| (default) | masks name, email, phone, address, account, secret, rrn |
+| `--strict` | also masks urls and dates (all 9 categories) |
 | `--mask CAT,..` | mask exactly these categories |
 | `--allow CAT,..` | never mask these (e.g. `--allow name` for public authors) |
 | `--device cpu` | force CPU if CUDA misbehaves |

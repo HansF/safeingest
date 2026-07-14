@@ -9,23 +9,30 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-# User-facing category name -> opf model label.
-CATEGORIES: dict[str, str] = {
-    "name": "private_person",
-    "email": "private_email",
-    "phone": "private_phone",
-    "address": "private_address",
-    "account": "account_number",
+# Span label (opf model or safeingest.patterns regex layer) -> user-facing category.
+LABEL_TO_CATEGORY: dict[str, str] = {
+    # opf model labels
+    "private_person": "name",
+    "private_email": "email",
+    "private_phone": "phone",
+    "private_address": "address",
+    "account_number": "account",
     "secret": "secret",
-    "url": "private_url",
-    "date": "private_date",
+    "private_url": "url",
+    "private_date": "date",
+    # regex-layer labels (patterns.py)
+    "EMAIL": "email",
+    "CREDIT_CARD": "account",
+    "IBAN": "account",
+    "BE_RRN": "rrn",
+    "BE_PHONE": "phone",
+    "BE_ADDRESS": "address",
 }
-LABEL_TO_CATEGORY: dict[str, str] = {v: k for k, v in CATEGORIES.items()}
 
+ALL_CATEGORIES = frozenset(LABEL_TO_CATEGORY.values())
 # Masked by default; url/date only under --strict (they usually carry the
 # document's meaning, not personal identity).
-DEFAULT_CATEGORIES = frozenset({"name", "email", "phone", "address", "account", "secret"})
-ALL_CATEGORIES = frozenset(CATEGORIES)
+DEFAULT_CATEGORIES = ALL_CATEGORIES - {"url", "date"}
 
 
 @dataclass
@@ -75,7 +82,8 @@ def apply_placeholders(text: str, spans, categories: frozenset[str]) -> Redactio
 
     pieces: list[str] = []
     cursor = 0
-    for span in sorted(spans, key=lambda s: s.start):
+    # Longest span wins when two start at the same offset (model vs regex).
+    for span in sorted(spans, key=lambda s: (s.start, s.start - s.end)):
         if span.start < cursor:  # overlapping span; earlier one already covers it
             continue
         category = LABEL_TO_CATEGORY.get(span.label)
@@ -111,8 +119,11 @@ class Redactor:
         return self._opf
 
     def redact(self, text: str, categories: frozenset[str]) -> RedactionOutcome:
+        from .patterns import find_pattern_spans
+
         result = self._load().redact(text)
-        outcome = apply_placeholders(result.text, result.detected_spans, categories)
+        spans = list(result.detected_spans) + find_pattern_spans(result.text)
+        outcome = apply_placeholders(result.text, spans, categories)
         outcome.warning = result.warning
         return outcome
 

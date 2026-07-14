@@ -11,6 +11,7 @@ requires-python = ">=3.10,<3.13"
 dependencies = [
     "markitdown[pdf,docx,pptx,xlsx,xls,outlook]>=0.1.1",
     "opf @ git+https://github.com/openai/privacy-filter",
+    "pii-core>=0.1.0",
 ]
 
 [project.scripts]
