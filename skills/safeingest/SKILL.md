@@ -71,6 +71,14 @@ safeingest <file-or-url> -o <scratchpad-or-project-dir>/<name>.safe.md --report
 Then Read the `.safe.md` file. The `--report` JSON (stderr) tells you how many
 spans were masked per category — relay this to the user.
 
+A **self-check** runs by default: detection re-runs on the sanitized output,
+and suspected leftovers appear as `self_check_residual` in the report plus a
+stderr warning. If residuals are reported, relay the counts to the user and
+suggest `--strict` or a manual skim; the output file still exists. For
+high-sensitivity documents add `--check`: then residual PII means NO output
+is written and the exit code is 3 — report that to the user, never work
+around it by opening the original.
+
 ## Flags
 
 | Flag | Effect |
@@ -80,6 +88,8 @@ spans were masked per category — relay this to the user.
 | `--mask CAT,..` | mask exactly these categories |
 | `--allow CAT,..` | never mask these (e.g. `--allow name` for public authors) |
 | `--device cpu` | force CPU if CUDA misbehaves |
+| `--check` | gate mode: residual PII after masking → no output, exit 3 |
+| `--no-self-check` | skip the second detection pass (faster, less safe) |
 
 ## Reading the output
 

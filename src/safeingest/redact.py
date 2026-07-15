@@ -7,6 +7,7 @@ downstream LLMs can track entities ("[NAME_1] emailed [NAME_2]").
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 
 # Span label (opf model or safeingest.patterns regex layer) -> user-facing category.
@@ -33,6 +34,10 @@ ALL_CATEGORIES = frozenset(LABEL_TO_CATEGORY.values())
 # Masked by default; url/date only under --strict (they usually carry the
 # document's meaning, not personal identity).
 DEFAULT_CATEGORIES = ALL_CATEGORIES - {"url", "date"}
+
+_PLACEHOLDER = re.compile(
+    r"\[(?:" + "|".join(sorted(c.upper() for c in ALL_CATEGORIES)) + r")_\d+\]"
+)
 
 
 @dataclass
@@ -103,6 +108,25 @@ def apply_placeholders(text: str, spans, categories: frozenset[str]) -> Redactio
     return RedactionOutcome(text="".join(pieces), counts=counts, detected_not_masked=skipped)
 
 
+def residual_counts(text: str, spans, categories: frozenset[str]) -> dict[str, int]:
+    """Count detections in already-sanitized text — each one is a suspected leak.
+
+    Spans overlapping a placeholder token are the detectors reacting to our own
+    substitutions, not leaks, and are ignored. Only actively-masked categories
+    count: url/date hits on a default run are policy, not leakage.
+    """
+    placeholder_ranges = [(m.start(), m.end()) for m in _PLACEHOLDER.finditer(text)]
+    counts: dict[str, int] = {}
+    for span in spans:
+        category = LABEL_TO_CATEGORY.get(span.label)
+        if category is None or category not in categories:
+            continue
+        if any(span.start < end and span.end > start for start, end in placeholder_ranges):
+            continue
+        counts[category] = counts.get(category, 0) + 1
+    return counts
+
+
 class Redactor:
     """Lazy wrapper around the opf model; loads weights on first use."""
 
@@ -126,6 +150,14 @@ class Redactor:
         outcome = apply_placeholders(result.text, spans, categories)
         outcome.warning = result.warning
         return outcome
+
+    def self_check(self, sanitized: str, categories: frozenset[str]) -> dict[str, int]:
+        """Re-run both detection layers on sanitized output; return leak counts."""
+        from .patterns import find_pattern_spans
+
+        result = self._load().redact(sanitized)
+        spans = list(result.detected_spans) + find_pattern_spans(result.text)
+        return residual_counts(result.text, spans, categories)
 
 
 def _detect_device() -> str:

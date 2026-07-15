@@ -22,6 +22,9 @@ locally; no document content leaves the machine.
  4. Mask             typed numbered placeholders       (redact.py)
     │
     ▼
+ 5. Self-check       re-detect on sanitized text        (redact.py)
+    │
+    ▼
  sanitized markdown + JSON report (counts only, never values)
 ```
 
@@ -81,6 +84,25 @@ Replacements are typed and numbered: `[NAME_1]`, `[ACCOUNT_3]`. The same
 surface text (case-insensitive) within a category always gets the same
 number, so an LLM can track entities across the document — "[NAME_1] emailed
 [NAME_2], then [NAME_1] replied" stays coherent without revealing anyone.
+
+### 5. Self-check — `redact.py`
+
+After masking, both detection layers run again on the *sanitized* text. Any
+hit in an actively-masked category — outside the placeholder tokens
+themselves — is a suspected leak that slipped past the first pass. This turns
+"we think it's clean" into a tested property, and it works: on the test
+invoice, the second pass flagged the customer number and invoice number
+(which stand out to the model once the surrounding PII is masked) and the
+customer's postcode+city.
+
+- Default: a warning on stderr plus a `self_check_residual` count map in
+  `--report`; output is still emitted.
+- `--check`: gate mode — residual PII means **no output at all** and exit
+  code 3, so scripts and agents can rely on it.
+- `--no-self-check`: skip the second pass (faster, less safe).
+
+Expect some false positives (company city, BTW numbers): the check inherits
+the over-redaction bias — it flags for a human, it doesn't silently rewrite.
 
 ### Fail closed
 

@@ -28,6 +28,7 @@ safeingest scan.pdf --strict               # also mask urls + dates
 safeingest scan.pdf --mask email,phone     # mask only these
 safeingest scan.pdf --allow name --report  # keep names, print JSON summary to stderr
 safeingest scan.pdf --device cpu           # force CPU inference
+safeingest scan.pdf --check                # gate: residual PII -> no output, exit 3
 ```
 
 Input formats: PDF, DOCX, PPTX, XLSX/XLS, Outlook MSG, HTML, CSV, JSON, XML,
@@ -39,7 +40,8 @@ Markdown, plain text, URLs, stdin — anything markitdown converts.
 {
   "masked_categories": ["account", "address", "email", "name", "phone", "rrn", "secret"],
   "masked_spans": {"name": 2, "email": 1, "account": 7},
-  "detected_but_allowed": {"date": 6}
+  "detected_but_allowed": {"date": 6},
+  "self_check_residual": {"account": 2}
 }
 ```
 
@@ -66,6 +68,9 @@ PII is replaced by typed, numbered placeholders — `[NAME_1]`, `[EMAIL_2]` —
 stable per unique value, so an LLM can still follow who did what.
 
 The pipeline **fails closed**: if redaction cannot run, nothing is emitted.
+And it **checks its own work**: detection re-runs on the sanitized output;
+suspected leftovers are warned about (and gate the output entirely with
+`--check`, exit code 3).
 
 ## Install
 

@@ -34,12 +34,11 @@ backlog of directions that came up during development.
 
 ## Verification & trust
 
-- **Second-pass self-check:** re-run detection on the *sanitized* output; any
-  hit means a leak slipped through the mask step → warn or fail. Cheap
-  (text is already loaded) and turns "we think it's clean" into a tested
-  property.
-- **Leak-detection exit code** (`--check`): non-zero when the second pass
-  finds residual PII, so scripts and agents can gate on it.
+- ~~**Second-pass self-check**~~ — **implemented**: detection re-runs on the
+  sanitized output by default; residual hits warn on stderr and appear as
+  `self_check_residual` in `--report`. `--check` gates (no output, exit 3).
+  Follow-up idea: an auto-remediation loop that masks residuals and
+  re-checks until a fixed point, instead of only flagging.
 - **Evaluation corpus:** a set of synthetic documents (invoice, CV, medical
   letter, email thread — per language) with known PII annotations, scored in
   CI for precision/recall per category. Guards against regressions when
