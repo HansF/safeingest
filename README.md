@@ -58,6 +58,11 @@ The detection model is good but not perfect (unusual names, novel secret
 formats, regional conventions can slip through). For high-sensitivity
 documents, review the sanitized output before sharing it.
 
+## Docs
+
+- [How it works](docs/how-it-works.md) — pipeline, detection layers, masking rules
+- [Improvement ideas](docs/improvement-ideas.md) — backlog of future directions
+
 ## Agent skill
 
 The repo ships an [Agent Skill](https://agentskills.io/specification) at
