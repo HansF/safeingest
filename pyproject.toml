@@ -29,10 +29,10 @@ packages = ["src/safeingest"]
 [tool.hatch.metadata]
 allow-direct-references = true
 
-[tool.uv]
-# opf pulls torch from PyPI (CUDA build on Linux); keep resolution deterministic.
-
 [tool.pytest.ini_options]
 markers = [
     "slow: requires opf/torch (full neural redaction pipeline)",
 ]
+
+[tool.uv]
+# opf pulls torch from PyPI (CUDA build on Linux); keep resolution deterministic.
