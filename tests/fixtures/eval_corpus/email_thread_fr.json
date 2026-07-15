@@ -1,0 +1,9 @@
+[
+  {"category": "email", "text": "marie.dubois@exemple-entreprise.fr"},
+  {"category": "email", "text": "support@voorbeeldbedrijf.be"},
+  {"category": "email", "text": "support@voorbeeldbedrijf.be"},
+  {"category": "email", "text": "marie.dubois@exemple-entreprise.fr"},
+  {"category": "account", "text": "4532 0151 1283 0366"},
+  {"category": "account", "text": "BE77 0107 9869 4142"},
+  {"category": "phone", "text": "+32 478 45 67 89"}
+]

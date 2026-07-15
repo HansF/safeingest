@@ -1,0 +1,6 @@
+[
+  {"category": "email", "text": "marie.dubois@exemple-entreprise.fr"},
+  {"category": "address", "text": "Rue de la Loi 155"},
+  {"category": "address", "text": "Avenue Louise 210"},
+  {"category": "phone", "text": "0478 45 67 89"}
+]

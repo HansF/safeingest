@@ -20,6 +20,7 @@ safeingest = "safeingest.cli:main"
 [dependency-groups]
 dev = [
     "pytest>=8",
+    "faker>=37",
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -30,3 +31,8 @@ allow-direct-references = true
 
 [tool.uv]
 # opf pulls torch from PyPI (CUDA build on Linux); keep resolution deterministic.
+
+[tool.pytest.ini_options]
+markers = [
+    "slow: requires opf/torch (full neural redaction pipeline)",
+]

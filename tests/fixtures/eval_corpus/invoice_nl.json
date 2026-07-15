@@ -1,0 +1,7 @@
+[
+  {"category": "email", "text": "jan.peeters@voorbeeldbedrijf.be"},
+  {"category": "account", "text": "BE14 0587 7594 5883"},
+  {"category": "address", "text": "Emiel Lossystraat 37"},
+  {"category": "address", "text": "Kerkstraat 12 bus 3"},
+  {"category": "phone", "text": "+32 478 45 67 89"}
+]
